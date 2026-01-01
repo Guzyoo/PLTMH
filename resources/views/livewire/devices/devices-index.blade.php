@@ -1,10 +1,11 @@
 <div>
+    <livewire:device-data />
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        
+
         <div class="p-4 border-b border-slate-200 bg-slate-50/50 flex gap-3">
-             <div class="relative flex-1 max-w-sm">
-                 <input type="text" class="block w-full pl-3 pr-3 py-2 border border-slate-300 rounded-lg sm:text-sm" placeholder="Search...">
-             </div>
+            <div class="relative flex-1 max-w-sm">
+                <input type="text" class="block w-full pl-3 pr-3 py-2 border border-slate-300 rounded-lg sm:text-sm" placeholder="Search...">
+            </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -19,14 +20,14 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-slate-200">
-                    
+
                     {{-- PERHATIKAN: $devices as $device (SINGULAR) --}}
                     @foreach ($devices as $device)
                     <tr class="hover:bg-slate-50 transition-colors">
-                        
+
                         {{-- HAPUS typo $devies --}}
                         <td class="px-6 py-4 text-sm text-slate-500">
-                            #{{ $device->id }}
+                            {{ ($devices->currentPage() - 1) * $devices->perPage() + $loop->iteration }}
                         </td>
 
                         <td class="px-6 py-4 text-sm font-medium text-slate-900">
@@ -43,7 +44,11 @@
                         </td>
 
                         <td class="px-6 py-4 text-right">
-                            <button class="text-blue-600 hover:underline">Edit</button>
+                            <button
+                                wire:click="$dispatch('edit-device', { id: {{ $device->id }} })"
+                                class="text-blue-600 hover:text-blue-900 font-medium text-sm transition">
+                                Edit
+                            </button>
                         </td>
                     </tr>
                     @endforeach
@@ -51,7 +56,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <div class="p-4">
             {{ $devices->links() }}
         </div>

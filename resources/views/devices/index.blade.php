@@ -5,16 +5,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Manajemen Device - PLTMH</title>
-
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
 
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
 
+    {{-- NAVBAR KHUSUS HALAMAN ADMIN --}}
     <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
@@ -24,12 +23,23 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                         </svg>
                     </div>
-                    <span class="font-bold text-xl tracking-tight text-slate-900">PLTMH Admin</span>
+                    <span class="font-bold text-xl tracking-tight text-slate-900">
+                        {{ Auth::user()->role === 'admin' ? 'Administrator' : 'User Panel' }}
+                    </span>
                 </div>
+
                 <div class="flex items-center gap-4">
                     <a href="{{ url('/') }}" class="text-sm font-medium text-slate-500 hover:text-blue-600 transition">← Kembali ke Dashboard</a>
-                    <div class="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold border border-slate-300">
-                        A
+
+                    {{-- Profil User --}}
+                    <div class="flex items-center gap-2">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-bold text-slate-900">{{ Auth::user()->name }}</p>
+                            <p class="text-xs text-slate-500 uppercase">{{ Auth::user()->role }}</p>
+                        </div>
+                        <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200">
+                            {{ substr(Auth::user()->name, 0, 1) }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -43,14 +53,21 @@
                 <h1 class="text-2xl font-bold text-slate-900">Device Management</h1>
                 <p class="text-slate-500 text-sm mt-1">Kelola daftar alat IoT dan kepemilikannya.</p>
             </div>
+
             <div class="flex flex-row gap-4">
+                {{-- LOGIKA PEMBEDA: HANYA ADMIN YANG BISA TAMBAH USER --}}
+                @if(Auth::user()->role === 'admin')
                 <livewire:create-user />
+                @endif
+
+                {{-- SEMUA YANG LOGIN (Admin & User) BISA TAMBAH DEVICE --}}
                 <livewire:devices.create-device />
             </div>
 
         </div>
 
-        <livewire:devices.devices-index/>
+        {{-- Tabel Device (Di dalamnya sudah ada tombol Edit/Delete) --}}
+        <livewire:devices.devices-index />
 
     </main>
 

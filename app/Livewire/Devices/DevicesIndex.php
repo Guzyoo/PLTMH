@@ -15,9 +15,7 @@ class DevicesIndex extends Component
     // 3. Gunakan Trait Pagination agar halaman 1, 2, dst jalan mulus
     use WithPagination;
 
-    // 4. LISTENER AJAIB
-    // Fungsi ini akan otomatis dipanggil saat 'CreateDevice' selesai simpan data.
-    // Saat fungsi ini dipanggil, Livewire otomatis me-render ulang tabelnya.
+    #[On('device-updated')]
     #[On('device-created')]
     public function refreshTable()
     {

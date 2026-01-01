@@ -6,24 +6,24 @@
     </button>
 
     @if($isOpen)
-    
+
     <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
-        
+
         <div style="background-color: white; width: 100%; max-width: 500px; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-            
+
             <form wire:submit.prevent="submit">
                 <div class="p-6">
                     <h3 class="text-lg font-bold text-slate-900 mb-4 border-b pb-2">
                         Tambah Device Baru
                     </h3>
-                    
+
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">Pemilik (User)</label>
                             <select wire:model="user_id" class="w-full border border-slate-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">-- Pilih User --</option>
                                 @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
                                 @endforeach
                             </select>
                             @error('user_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
@@ -53,7 +53,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-slate-50 px-6 py-4 flex flex-row-reverse gap-3 border-t">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm">
                         Simpan Data

@@ -1,15 +1,36 @@
 <?php
 
-use App\Http\Controllers\DeviceController;
-use App\Models\Sensor;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DeviceController;
 
+// ==========================================
+// 1. PUBLIC ROUTES (Bisa diakses Guest/Siapa saja)
+// ==========================================
+
+// Halaman Dashboard Utama (Welcome)
 Route::get('/', function () {
     return view('welcome');
+})->name('dashboard'); // Kasih nama biar gampang dipanggil
+
+// Halaman History
+Route::get('/history', function () {
+    return view('history');
 });
 
-Route::get('devices', [DeviceController::class, 'index'])->name('devices.index');
+// Login & Auth
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/history', function () {
-    return view('history'); // Panggil file history.blade.php
+// ==========================================
+// 2. PRIVATE ROUTES (Harus Login Dulu)
+// ==========================================
+
+Route::middleware(['auth'])->group(function () {
+
+    // Halaman Manajemen Device (Hanya Admin/User Terdaftar)
+    Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
+
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
