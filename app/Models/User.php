@@ -3,10 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
@@ -33,6 +35,23 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function getLastActivityAttribute()
+    {
+        // Ambil data session terakhir berdasarkan user_id
+        $session = DB::table('sessions')
+            ->where('user_id', $this->id)
+            ->orderBy('last_activity', 'desc')
+            ->first();
+
+        // Jika ada session, ubah timestamp (integer) jadi format tanggal Carbon
+        if ($session) {
+            return Carbon::createFromTimestamp($session->last_activity);
+        }
+
+        // Jika tidak ada data session
+        return null;
+    }
 
     /**
      * Get the attributes that should be cast.

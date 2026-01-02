@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Manajemen Device - PLTMH</title>
+    <title>Manajemen User - PLTMH</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -47,28 +47,7 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900">Device Management</h1>
-                <p class="text-slate-500 text-sm mt-1">Kelola daftar alat IoT dan kepemilikannya.</p>
-            </div>
-
-            <div class="flex flex-row gap-4">
-                {{-- LOGIKA PEMBEDA: HANYA ADMIN YANG BISA MANAGE USER --}}
-                @if(Auth::user()->role === 'admin')
-                <x-ManageUser />
-                <livewire:create-user />
-                @endif
-
-                {{-- SEMUA YANG LOGIN (Admin & User) BISA TAMBAH DEVICE --}}
-                <livewire:devices.create-device />
-            </div>
-
-        </div>
-
-        {{-- Tabel Device (Di dalamnya sudah ada tombol Edit/Delete) --}}
-        <livewire:devices.devices-index />
+        <livewire:manage-user />
 
     </main>
 

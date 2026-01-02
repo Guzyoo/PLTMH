@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\ManageUserController;
 
 // ==========================================
 // 1. PUBLIC ROUTES (Bisa diakses Guest/Siapa saja)
@@ -30,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Halaman Manajemen Device (Hanya Admin/User Terdaftar)
     Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
+    Route::get('/manage', [ManageUserController::class, 'index'])->name('manage.index');
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
