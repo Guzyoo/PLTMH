@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\ActivityLogIndex;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeviceController;
@@ -32,6 +33,9 @@ Route::middleware(['auth'])->group(function () {
     // Halaman Manajemen Device (Hanya Admin/User Terdaftar)
     Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
     Route::get('/manage', [ManageUserController::class, 'index'])->name('manage.index');
+
+    // Cek Log Aktivitas
+    Route::get('/logs', ActivityLogIndex::class)->name('logs.index');
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

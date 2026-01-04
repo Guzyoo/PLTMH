@@ -4,46 +4,46 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User; // Pastikan import Model User
 
 class AuthController extends Controller
 {
-    // 1. Tampilkan Form Login
     public function showLoginForm()
     {
-        return view('auth.login'); // Pastikan file blade ada di resources/views/auth/login.blade.php
+        return view('auth.login');
     }
 
-    // 2. Proses Login
     public function login(Request $request)
     {
-        // Validasi input
+        // 1. Validasi Input
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        // Coba Login
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate(); // Security: Cegah Session Fixation
+        // 2. Cek apakah Email terdaftar?
+        $user = User::where('email', $request->email)->first();
 
-            // Redirect ke halaman yang diminta user, atau default ke /devices
+        if (!$user) {
+            // Jika email tidak ditemukan di database
+            return back()->withErrors(['login_error' => 'Akun tidak terdaftar di sistem kami.'])->onlyInput('email');
+        }
+
+        // 3. Cek Password / Coba Login
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
             return redirect()->intended('/devices');
         }
 
-        // Jika Gagal
-        return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ])->onlyInput('email');
+        // 4. Jika Email ada tapi Password salah
+        return back()->withErrors(['login_error' => 'Email/Password Anda Salah.'])->onlyInput('email');
     }
 
-    // 3. Proses Logout
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect('/');
     }
 }

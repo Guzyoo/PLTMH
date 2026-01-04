@@ -1,4 +1,4 @@
-<div class="w-full"> {{-- Tambahan w-full agar container responsive --}}
+<div class="w-full justify-center"> {{-- Tambahan w-full agar container responsive --}}
 
     {{-- Header Section --}}
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
@@ -75,13 +75,37 @@
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             @if($user->last_activity)
-                            <span class="text-green-600 flex items-center gap-1">
-                                <span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
-                                {{ \Carbon\Carbon::parse($user->last_activity)->diffForHumans() }}
-                            </span>
-                            @else
-                            <span class="text-slate-400 italic text-xs">Offline</span>
-                            @endif
+                            @php
+                            // Parsing waktu
+                            $lastActivity = \Carbon\Carbon::parse($user->last_activity);
+                            // Cek selisih waktu (dalam menit)
+                            $isOnline = $lastActivity->diffInMinutes(now()) < 5;
+                                @endphp
+
+                                @if($isOnline)
+                                <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                <span class="relative flex h-2 w-2 mr-1.5">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                </span>
+                                Sedang Online
+                                </span>
+                                @else
+                                {{-- Tampilan Jika Offline (Tampilkan waktu terakhir) --}}
+                                <div class="flex flex-col">
+                                    <span class="text-slate-600">
+                                        {{ $lastActivity->diffForHumans() }}
+                                    </span>
+                                    <span class="text-xs text-slate-400">
+                                        {{ $lastActivity->format('d M Y, H:i') }}
+                                    </span>
+                                </div>
+                                @endif
+                                @else
+                                <span class="inline-flex items-center rounded-full bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-500/10">
+                                    Offline
+                                </span>
+                                @endif
                         </td>
                         <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                             <button wire:click="edit({{ $user->id }})" class="text-blue-600 hover:text-blue-900 mr-4 font-semibold">Edit</button>

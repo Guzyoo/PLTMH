@@ -5,15 +5,17 @@ namespace App\Livewire;
 use App\Models\User;
 use App\Models\Device;
 use Livewire\Component;
-use Livewire\Attributes\On; // Penting buat komunikasi antar component
+use App\Models\ActivityLog;
+use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Auth;
 
 class DeviceData extends Component
 {
     public $isOpen = false;
-    public $users;
+    public $isDeleting = false; // <--- STATE BARU UNTUK MODAL HAPUS
 
-    // Data Form
-    public $device_id; // Buat nyimpen ID yang sedang diedit
+    public $users;
+    public $device_id;
     public $name, $device_type, $device_identifier, $user_id;
 
     public function mount()
@@ -21,22 +23,20 @@ class DeviceData extends Component
         $this->users = User::all();
     }
 
-    // 1. LISTENER: Menunggu tombol Edit di tabel diklik
     #[On('edit-device')]
     public function loadDevice($id)
     {
         $device = Device::find($id);
 
         if ($device) {
-            // Isi form dengan data device yang dipilih
             $this->device_id = $device->id;
             $this->name = $device->name;
             $this->device_type = $device->device_type;
             $this->device_identifier = $device->device_identifier;
             $this->user_id = $device->user_id;
 
-            // Buka Modal
             $this->isOpen = true;
+            $this->isDeleting = false; // Reset status delete saat buka modal
             $this->resetValidation();
         }
     }
@@ -44,17 +44,58 @@ class DeviceData extends Component
     public function closeModal()
     {
         $this->isOpen = false;
+        $this->isDeleting = false; // Reset status delete
         $this->reset(['name', 'device_type', 'device_identifier', 'user_id', 'device_id']);
     }
 
-    // 2. FUNGSI UPDATE DATA
+    // --- LOGIKA HAPUS BARU ---
+
+    // 1. Tombol Delete ditekan -> Munculkan Konfirmasi
+    public function confirmDelete()
+    {
+        $this->isDeleting = true;
+    }
+
+    // 2. Tombol Batal Delete ditekan -> Kembali ke Form Edit
+    public function cancelDelete()
+    {
+        $this->isDeleting = false;
+    }
+
+    // 3. Tombol "Ya, Hapus" ditekan -> Eksekusi Hapus
+    public function delete()
+    {
+        if ($this->device_id) {
+            // 1. Ambil data device sebelum dihapus (buat dicatat namanya)
+            $device = Device::find($this->device_id);
+
+            if ($device) {
+                // 2. CATAT KE LOG AKTIVITAS
+                ActivityLog::create([
+                    'user_id'     => Auth::id(), // Ini PASTI user yang sedang login/online saat ini
+                    'action'      => 'DELETE DEVICE',
+                    'description' => 'Menghapus device: ' . $device->name . ' (ID: ' . $device->device_identifier . ')',
+                    'ip_address'  => request()->ip(), // Catat IP address buat keamanan tambahan
+                ]);
+
+                // 3. Baru hapus datanya
+                $device->delete();
+
+                $this->dispatch('device-updated');
+                $this->closeModal();
+
+                // Opsional: Beri pesan sukses spesifik
+                session()->flash('message', 'Device berhasil dihapus dan aktivitas tercatat.');
+            }
+        }
+    }
+
     public function update()
     {
         $this->validate([
             'name' => 'required',
             'device_type' => 'required',
             'user_id' => 'required|exists:users,id',
-            // Identifier harus unik, KECUALI untuk device ini sendiri
             'device_identifier' => 'required|unique:devices,device_identifier,' . $this->device_id
         ]);
 
@@ -67,19 +108,6 @@ class DeviceData extends Component
                 'user_id' => $this->user_id,
             ]);
 
-            // Kirim sinyal ke Tabel buat refresh
-            $this->dispatch('device-updated');
-            $this->closeModal();
-        }
-    }
-
-    // 3. FUNGSI DELETE DATA
-    public function delete()
-    {
-        if ($this->device_id) {
-            Device::find($this->device_id)->delete();
-
-            // Kirim sinyal ke Tabel buat refresh
             $this->dispatch('device-updated');
             $this->closeModal();
         }
