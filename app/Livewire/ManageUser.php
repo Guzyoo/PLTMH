@@ -47,6 +47,7 @@ class ManageUser extends Component
             session()->flash('message', 'Data User berhasil diperbarui.');
             $this->cancel();
         }
+        $this->dispatch('user-updated');
     }
 
     // 1. Munculkan Modal Konfirmasi

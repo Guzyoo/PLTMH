@@ -1,7 +1,14 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="mb-6">
-        <h2 class="text-2xl font-bold text-slate-900">Log Aktivitas Sistem</h2>
-        <p class="text-slate-500 text-sm">Riwayat tindakan pengguna (Audit Trail).</p>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+        <div>
+            <h2 class=" text-2xl font-bold text-slate-900">Log Aktivitas Sistem</h2>
+            <p class="text-slate-500 text-sm">Riwayat tindakan pengguna (Audit Trail).</p>
+        </div>
+        <div>
+            <a href="{{ url('/devices') }}" class="inline-flex items-center justify-center px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-lg transition shadow-sm focus:outline-none">
+                Kembali
+            </a>
+        </div>
     </div>
 
     <div class="bg-white shadow-sm ring-1 ring-slate-900/5 sm:rounded-xl overflow-hidden">

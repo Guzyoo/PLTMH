@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
     @vite('resources/css/app.css')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
@@ -17,6 +18,10 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+        {{-- Alert System --}}
+        @auth
+        <livewire:system-alert />
+        @endauth
         {{-- Status Device (Selalu Muncul untuk Siapapun) --}}
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
             <div>
@@ -65,6 +70,28 @@
     </main>
 
     <x-footer />
+
+    <script>
+        function konfirmasiLogout() {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Sesi Anda akan berakhir!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Logout',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // INI KUNCINYA:
+                    // Jika user klik "Ya", JS akan mencari form dengan ID 'form-logout'
+                    // dan mengirimkannya secara paksa. Laravel akan menerimanya sebagai request POST biasa.
+                    document.getElementById('form-logout').submit();
+                }
+            })
+        }
+    </script>
 
 </body>
 
