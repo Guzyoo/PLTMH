@@ -16,7 +16,6 @@ class SystemAlert extends Component
         $latest = Sensor::latest()->first();
 
         if (!$latest) {
-            // Kasus langka: Belum ada data sama sekali di database
             $alerts[] = [
                 'type' => 'warning',
                 'title' => 'Menunggu Data',
@@ -24,18 +23,19 @@ class SystemAlert extends Component
             ];
         } else {
             // 2. CEK KONEKSI (OFFLINE)
-            // Jika data terakhir lebih tua dari 2 menit, anggap OFFLINE
             $lastUpdate = Carbon::parse($latest->created_at);
-            if ($lastUpdate->diffInMinutes(now()) > 2) {
+
+            // --- PERUBAHAN DISINI ---
+            // Gunakan diffInSeconds() > 10
+            if ($lastUpdate->diffInSeconds(now()) > 10) {
                 $alerts[] = [
                     'type' => 'danger', // Merah
                     'title' => 'SISTEM OFFLINE',
-                    'message' => 'Perangkat tidak mengirim data lebih dari 2 menit. Periksa koneksi internet atau daya alat.'
+                    // Update pesan agar sesuai (10 detik)
+                    'message' => 'Perangkat tidak mengirim data lebih dari 10 detik. Periksa koneksi internet atau daya alat.'
                 ];
             } else {
-                // Jika Online, baru kita cek Tegangannya (Voltage)
-
-                // Ambil nilai voltage dari JSON
+                // Jika Online, baru kita cek Tegangan
                 $voltage = $latest->data['voltage'] ?? 0;
 
                 // 3. CEK TEGANGAN TINGGI (OVERVOLTAGE)

@@ -12,10 +12,7 @@ class SensorChart extends Component
 
     public function render()
     {
-        // ... (LOGIKA QUERY JANGAN DIUBAH, SAMA SEPERTI SEBELUMNYA) ...
-        // ... switch case filter ...
-
-        // Pastikan logic query kamu tetap ada disini
+        // 1. QUERY DATABASE (Biarkan seperti semula)
         $query = Sensor::query();
         switch ($this->filter) {
             case '24hours':
@@ -33,18 +30,44 @@ class SensorChart extends Component
                 break;
         }
 
+        // Ambil data dan urutkan
         $sensors = $query->latest()->take($limit)->get()->sortBy('created_at');
 
         $labels = [];
         $voltages = [];
         $currents = [];
 
+        // Simpan waktu data terakhir buat pengecekan
+        $lastDataTime = null;
+
         foreach ($sensors as $s) {
-            $labels[] = $s->created_at->format('H:i');
+            // Simpan format jam:menit:detik biar kelihatan pergerakannya
+            $labels[] = $s->created_at->format('H:i:s');
+
             $data = $s->data ?? [];
             $voltages[] = $data['voltage'] ?? 0;
             $currents[] = $data['current'] ?? 0;
+
+            $lastDataTime = $s->created_at; // Catat waktu terakhir
         }
+
+        // ============================================================
+        // LOGIKA BARU: PAKSA TURUN KE NOL JIKA OFFLINE
+        // ============================================================
+
+        if ($lastDataTime) {
+            // Cek selisih waktu data terakhir dengan SEKARANG
+            $diff = Carbon::parse($lastDataTime)->diffInSeconds(now());
+
+            // Jika data terakhir lebih tua dari 10 detik (artinya alat mati/delay)
+            // Kita suntikkan data palsu bernilai 0 di waktu SEKARANG.
+            if ($diff > 10) {
+                $labels[] = now()->format('H:i:s'); // Label waktu sekarang
+                $voltages[] = 0; // Paksa Tegangan 0
+                $currents[] = 0; // Paksa Arus 0
+            }
+        }
+        // ============================================================
 
         // SIAPKAN DATA ARRAY
         $chartData = [
@@ -53,10 +76,9 @@ class SensorChart extends Component
             'currents' => array_values($currents),
         ];
 
-        // 1. Dispatch untuk Update (Polling)
+        // Dispatch untuk Update Realtime
         $this->dispatch('update-chart', $chartData);
 
-        // 2. Kirim Data Awal ke View (Supaya langsung muncul pas load)
         return view('livewire.sensor-chart', [
             'chartData' => $chartData
         ]);
